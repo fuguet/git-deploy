@@ -8,6 +8,7 @@ $file    = fopen(LOGFILE, "a");
 $time    = time();
 $token   = false;
 $log     = false;
+$status  = false;
 
 // log the time
 date_default_timezone_set("UTC");
@@ -27,10 +28,11 @@ function forbid($file, $reason) {
     // explain why
         if ($reason) $log .= "=== ERROR: " . $reason . " ===\n";
         $log .= "*** ACCESS DENIED ***" . "\n\n\n";
+        $status = "ERROR!!!"
 
         if (!empty(REPORT_EMAIL)) {
                 try {
-                        shell_exec("mail -s \"PULL $(whoami): ERROR!!\" ".REPORT_EMAIL." <<< '".$log."'");
+                        shell_exec("mail -s \"PULL $(whoami): ".$status."\" ".REPORT_EMAIL." <<< '".$log."'");
                 } catch (Exception $e) {
                         $log .= $e . "\n";
                 }
@@ -77,26 +79,30 @@ if (!empty(TOKEN) && isset($_SERVER["HTTP_X_HUB_SIGNATURE"]) && $token !== hash_
                 shell_exec(GIT . " pull");
                 // return OK to prevent timeouts on AFTER_PULL
                 ok();
-                // execute AFTER_PULL if specified
-                if (!empty(REPORT_EMAIL)) {
-                        try {
-                                shell_exec("mail -s \"PULL $(whoami): ERROR!!\" ".REPORT_EMAIL." <<< '".$log."'");
-                        } catch (Exception $e) {
-                                $log .= $e . "\n";
-                        }
-                }
 
+                $status = "SUCCESFUL";
                 $log .= "*** AUTO PULL SUCCESFUL ***" . "\n";
             } catch (Exception $e) {
                 $log .= $e . "\n";
             }
         } else {
+            $status = "ERROR!!!";
             $log .= "=== ERROR: DIR is not a repository ===" . "\n";
         }
     } else{
+        $status = "ERROR!!!";
         $log .= "=== ERROR: Pushed branch does not match BRANCH ===\n";
     }
 }
 $log .= "\n\n" . PHP_EOL;
 fputs($file, $log);
 fclose($file);
+
+// execute AFTER_PULL if specified
+if (!empty(REPORT_EMAIL)) {
+        try {
+                shell_exec("mail -s \"PULL $(whoami): ".$status."\" ".REPORT_EMAIL." <<< '".$log."'");
+        } catch (Exception $e) {
+                $log .= $e . "\n";
+        }
+}
