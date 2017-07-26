@@ -30,9 +30,9 @@ function forbid($file, $reason) {
         $log .= "*** ACCESS DENIED ***" . "\n\n\n";
         $status = "ERROR!!!";
 
-        if (!empty(REPORT_EMAIL)) {
+        if (!empty(EMAIL_REPORT)) {
                 try {
-                        shell_exec("mail -s \"PULL $(whoami): ".$status."\" ".REPORT_EMAIL." <<< '".$log."'");
+                        shell_exec("mail -s \"PULL $(whoami): ".$status."\" ".EMAIL_REPORT." <<< '".$log."'");
                 } catch (Exception $e) {
                         $log .= $e . "\n";
                 }
@@ -99,9 +99,9 @@ fputs($file, $log);
 fclose($file);
 
 // execute AFTER_PULL if specified
-if (!empty(REPORT_EMAIL)) {
+if (!empty(EMAIL_REPORT)) {
         try {
-                shell_exec("mail -s \"PULL $(whoami): ".$status."\" ".REPORT_EMAIL." <<< '".$log."'");
+                shell_exec("mail -s \"PULL $(whoami): ".$status."\" ".EMAIL_REPORT." <<< '".$log."'");
         } catch (Exception $e) {
                 $log .= $e . "\n";
         }
