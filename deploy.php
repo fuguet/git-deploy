@@ -28,7 +28,7 @@ function forbid($file, $reason) {
     // explain why
         if ($reason) $log .= "=== ERROR: " . $reason . " ===\n";
         $log .= "*** ACCESS DENIED ***" . "\n\n\n";
-        $status = "ERROR!!!"
+        $status = "ERROR!!!";
 
         if (!empty(REPORT_EMAIL)) {
                 try {
